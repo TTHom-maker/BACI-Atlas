@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#081424">
+<title>BACI Atlas — Commercio mondiale completo HS6</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#ebf3fc;background:#081424;font-size:14px}*{box-sizing:border-box}
+body{margin:0}button,select,input{font:inherit;color:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #8db9ff}
+.layout{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}.side{height:100vh;overflow:auto;position:sticky;top:0;background:#0e1e32;border-right:1px solid #304259;padding:21px}
+.logo{font-size:24px;font-weight:850;letter-spacing:-1px;margin-bottom:2px}.logo span{color:#6aa8ff}.sublogo{font-size:10px;color:#90a8c0;letter-spacing:2px;font-weight:700}.section{color:#98b3d0;text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:750;margin:24px 0 10px}
+.field{margin-bottom:14px}.field label{display:block;color:#adc2d7;font-size:12px;font-weight:670;margin-bottom:6px}
+.field select,.field input{background:#172c45;border:1px solid #385473;border-radius:9px;width:100%;min-height:41px;padding:9px 10px}
+.field input::placeholder{color:#7290aa}.product-box{position:relative}.results{position:absolute;top:42px;left:0;right:0;background:#183550;border:1px solid #5e88b4;border-radius:9px;max-height:260px;overflow:auto;z-index:30;box-shadow:0 16px 28px #000a}.results:empty{display:none}
+.suggest{padding:9px 10px;background:none;color:#e5eff9;display:block;border:0;border-bottom:1px solid #37506b;width:100%;text-align:left;font-size:12px}.suggest:hover,.suggest:focus{background:#305679}
+.suggest b{display:block;color:#9bc4ff;margin-bottom:2px}.active-product{font-size:11px;margin-top:6px;display:flex;align-items:center;gap:8px;color:#a7d5ff}
+.clear{border:1px solid #426993;border-radius:8px;background:#203f61;padding:4px 9px}.small{font-size:11px;color:#8ca7c0;line-height:1.6}
+.main{min-width:0;padding:25px 26px 35px;max-width:1650px;width:100%;margin:auto}.top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:20px}
+h1{margin:4px 0;font-size:28px;letter-spacing:-.7px}h2{font-size:14px;margin:0}p{margin:0}.meta{font-size:12px;color:#a1bad1;line-height:1.6}
+.status{border:1px solid #37655f;background:#143632;color:#c4f3de;border-radius:30px;padding:8px 11px;font-size:11px;max-width:260px;text-align:right}.status.error{background:#452630;border-color:#934e63;color:#ffbaba}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 13px}.metric,.panel{background:#102239;border:1px solid #29415f;border-radius:14px}
+.metric{padding:15px;min-width:0}.metric label{display:block;font-size:11px;color:#a6bed6}.metric strong{display:block;margin-top:11px;font-size:23px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.metric small{display:block;color:#85a0b9;font-size:10px;margin-top:5px}
+.panel{padding:15px}.panelhead{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:10px}.panelhead small{font-size:11px;color:#9ab4cc}
+.mapbox{position:relative;background:#091827;border-radius:9px;overflow:hidden}.mapbox svg{width:100%;height:auto;min-height:300px;aspect-ratio:2/1;display:block;touch-action:none;cursor:grab}
+.mapbox svg:active{cursor:grabbing}.country{stroke:#2c465c;stroke-width:.55;vector-effect:non-scaling-stroke}.country:hover{stroke:#fff;stroke-width:1.5}.selected{stroke:#fff;stroke-width:1.8}
+.tooltip{display:none;position:absolute;pointer-events:none;background:#091528ed;border:1px solid #688aaa;padding:10px 13px;z-index:10;border-radius:9px;font-size:12px;max-width:230px;box-shadow:0 4px 20px #000a}.tooltip strong{display:block;margin-bottom:4px}.tooltip span{color:#a9c4df}
+.legend{display:flex;align-items:center;gap:7px;justify-content:space-between;flex-wrap:wrap;padding-top:9px;color:#a8c0d6;font-size:11px}.legendchips{display:flex;gap:4px}.chip{width:25px;height:12px;border-radius:3px}
+.bottom{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,.8fr);gap:13px;margin-top:13px}.ranks{margin-top:15px;display:grid;gap:10px}
+.rank{display:grid;grid-template-columns:20px minmax(80px,1fr) minmax(50px,.7fr) 90px;align-items:center;gap:8px;font-size:12px;cursor:pointer}.rank span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank .num{color:#7796af}.bar{height:9px;border-radius:5px;background:#25405c;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#efb783,#d45b39)}
+.rank .amount{text-align:right;color:#cbdfef;font-size:11px}.note{font-size:12px;color:#a7bed5;line-height:1.7}
+.pill{display:inline-block;font-size:10px;padding:4px 8px;border-radius:6px;background:#204267;color:#bedbfc}
+footer{padding-top:19px;font-size:11px;color:#829bb6;line-height:1.6}
+.zoom{display:flex;gap:6px}.zoom button{border:1px solid #355271;background:#19314c;border-radius:7px;padding:5px 9px}
+@media(max-width:1050px){.layout{grid-template-columns:250px minmax(0,1fr)}.metric strong{font-size:18px}.bottom{grid-template-columns:1fr}}
+@media(max-width:750px){.layout{display:block}.side{height:auto;position:relative;padding:16px}.section{margin-top:15px}.main{padding:17px 11px}.top h1{font-size:22px}.top{align-items:center}.metrics{grid-template-columns:1fr 1fr;gap:8px}.metric{padding:11px}.metric strong{font-size:20px}.mapbox svg{min-height:230px}.panel{padding:12px}.rank{grid-template-columns:17px minmax(75px,1fr) minmax(35px,.5fr) 77px;gap:5px}.status{font-size:10px;max-width:130px}}
+</style>
+<script>window.__BACI_PAYLOAD={geo:[]};</script>
+<script src="./payload/geo-01.js"></script>
+</head>
+<body>
+<div class="layout">
+<aside class="side">
+<div class="logo">◎ BACI <span>Atlas</span></div><div class="sublogo">GLOBAL TRADE EXPLORER</div>
+<div class="section">01 · Paese e anno</div>
+<div class="field"><label for="country">Paese da analizzare</label><select id="country"></select></div>
+<div class="field"><label for="year">Anno</label><select id="year"><option value="2024">2024</option><option value="2023">2023</option><option value="2022">2022</option></select></div>
+<div class="field"><label for="direction">Direzione del commercio</label><select id="direction"><option value="import">Importazioni — da quali paesi</option><option value="export">Esportazioni — verso quali paesi</option></select></div>
+<div class="section">02 · Categoria e prodotto</div>
+<div class="field"><label for="sector">Settore commerciale</label><select id="sector"><option value="">Tutti i settori</option></select></div>
+<div class="field"><label for="hs2">Categoria HS2 (2 cifre)</label><select id="hs2"><option value="">Tutte le categorie</option></select></div>
+<div class="field"><label for="hs4">Famiglia HS4 (4 cifre)</label><select id="hs4"><option value="">Tutte le famiglie</option></select></div>
+<div class="field"><label for="productSearch">Prodotto HS6 (6 cifre)</label><div class="product-box"><input type="search" id="productSearch" autocomplete="off" placeholder="Cerca nome o codice, es. 8703"><div class="results" id="suggestions"></div></div><div class="active-product" id="productSelected" hidden><span id="selectedLabel"></span><button class="clear" id="clearProduct">Rimuovi ×</button></div></div>
+<div class="section">03 · Misura</div>
+<div class="field"><label for="measure">Come misurare gli scambi</label><select id="measure"><option value="value">Valore (USD)</option><option value="quantity">Quantità (tonnellate)</option></select></div>
+<p class="small">Le quantità non dichiarate sono considerate <b>mancanti</b>, non zero. I valori BACI originali sono espressi in migliaia di dollari USA.</p>
+</aside>
+<main class="main">
+<div class="top"><div><div class="pill">BACI HS22 · 2022–2024 · V202601</div><h1 id="headline">Commercio mondiale</h1><p class="meta" id="subtitle">238 paesi · 5.609 prodotti HS6</p></div><div class="status" id="status" role="status">● Inizializzazione…</div></div>
+<div class="metrics">
+<div class="metric"><label>Valore totale</label><strong id="totalValue">—</strong><small>USD correnti</small></div>
+<div class="metric"><label>Quantità totale nota</label><strong id="totalQty">—</strong><small>Tonnellate; valori mancanti esclusi</small></div>
+<div class="metric"><label>Partner con scambi</label><strong id="partnerCount">—</strong><small id="recordsNote">Flussi rilevati</small></div>
+<div class="metric"><label>Partner principale</label><strong id="bestPartner">—</strong><small id="bestValue">Per valore selezionato</small></div>
+</div>
+<section class="panel">
+<div class="panelhead"><div><h2 id="mapTitle">Mappa delle relazioni commerciali</h2><small>Paese selezionato in blu; gli altri in base all'intensità degli scambi</small></div><div class="zoom"><button type="button" id="zoomIn" aria-label="Ingrandisci">+</button><button type="button" id="zoomOut" aria-label="Riduci">−</button><button type="button" id="resetZoom" aria-label="Ripristina mappa">↺</button></div></div>
+<div class="mapbox" id="mapWrap"><svg id="map" viewBox="0 0 1000 500" role="img" aria-label="Mappa mondiale dei partner commerciali"><g id="mapPaths"></g></svg><div id="tooltip" class="tooltip"></div></div>
+<div class="legend"><span>Grigio: nessun flusso nel filtro · Blu: paese selezionato</span><div class="legendchips"><span class="chip" style="background:#f5e8ce"></span><span class="chip" style="background:#f6c792"></span><span class="chip" style="background:#f29d67"></span><span class="chip" style="background:#dd6d3b"></span><span class="chip" style="background:#a93426"></span></div><span>Intensità crescente (scala log)</span></div>
+</section>
+<div class="bottom"><section class="panel"><div class="panelhead"><h2 id="rankingTitle">Principali partner commerciali</h2><small id="rankNote">Ordine decrescente</small></div><div class="ranks" id="ranking"></div></section>
+<section class="panel"><h2>Come leggere la mappa</h2><p class="note" style="margin-top:14px" id="explanation">Seleziona un paese e un prodotto. La mappa evidenzia l'origine delle importazioni o la destinazione delle esportazioni.</p><div style="height:1px;background:#2b415c;margin:15px 0"></div><p class="note" id="coverage">Caricamento delle informazioni sul dataset…</p></section></div>
+<footer>Fonte: CEPII BACI, HS22 V202601 · Gaulier &amp; Zignago (2010) · Licenza Etalab 2.0. Le osservazioni sono conservate alla granularità originale anno–esportatore–importatore–HS6. Il colore riguarda gli scambi del paese selezionato, non il totale mondiale del partner. I valori nominali non sono corretti per l'inflazione.</footer>
+</main>
+</div>
+<script>
+(()=>{
+"use strict";
+const $=id=>document.getElementById(id);
+const state={country:380,year:2024,direction:"import",sector:"",hs2:"",hs4:"",hs6:"",measure:"value"};
+const palette=["#f5e8ce","#f6c792","#f29d67","#dd6d3b","#a93426"];
+const fmtInt=new Intl.NumberFormat("it-IT",{maximumFractionDigits:0});
+const fmtShort=new Intl.NumberFormat("it-IT",{notation:"compact",maximumFractionDigits:2});
+let catalog,geo,countryById=new Map(),countryByIso=new Map(),paths=[],currentRows=[],cache=null,queryToken=0;
+let view={x:0,y:0,w:1000,h:500},drag=null;
+function notice(message,error=false){$("status").textContent=(error?"⚠ ":"● ")+message;$("status").classList.toggle("error",error)}
+function opt(el,value,label){const x=document.createElement("option");x.value=String(value);x.textContent=label;el.appendChild(x)}
+function compactUSD(thousand){return fmtShort.format(thousand*1000)+" USD"}
+function compactTon(q){return q===null?"—":fmtShort.format(q)+" t"}
+function formatValue(v){return state.measure==="value"?compactUSD(v.value):compactTon(v.quantity)}
+function metricNum(v){return state.measure==="value"?v.value:(v.quantity??0)}
+function setView(){ $("map").setAttribute("viewBox",[view.x,view.y,view.w,view.h].join(" ")) }
+function zoom(f){const w=Math.min(1000,Math.max(140,view.w*f)),h=w/2;view.x=Math.max(0,Math.min(1000-w,view.x+(view.w-w)/2));view.y=Math.max(0,Math.min(500-h,view.y+(view.h-h)/2));view.w=w;view.h=h;setView()}
+function setupMapGestures(){
+const el=$("map");$("zoomIn").onclick=()=>zoom(.77);$("zoomOut").onclick=()=>zoom(1.3);$("resetZoom").onclick=()=>{view={x:0,y:0,w:1000,h:500};setView()};
+el.addEventListener("wheel",e=>{e.preventDefault();zoom(e.deltaY>0?1.17:.85)},{passive:false});
+el.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,ox:view.x,oy:view.y,moved:false};el.setPointerCapture(e.pointerId)});
+el.addEventListener("pointermove",e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>6)drag.moved=true;const rect=el.getBoundingClientRect();view.x=Math.max(0,Math.min(1000-view.w,drag.ox-dx*view.w/rect.width));view.y=Math.max(0,Math.min(500-view.h,drag.oy-dy*view.h/rect.height));setView()});
+el.addEventListener("pointerup",()=>setTimeout(()=>drag=null,50));el.addEventListener("pointercancel",()=>drag=null)
+}
+function makePath(g){
+let d="";function ring(points){if(!points?.length)return;d+="M"+points.map(([lon,lat])=>((lon+180)/360*1000).toFixed(1)+","+((90-lat)/180*500).toFixed(1)).join("L")+"Z"}
+if(g.type==="Polygon")for(const a of g.coordinates)ring(a);
+else if(g.type==="MultiPolygon")for(const p of g.coordinates)for(const a of p)ring(a);
+return d;
+}
+function createMap(){
+for(const feature of geo.features){
+const iso=feature.properties.iso3;
+const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+path.setAttribute("d",makePath(feature.geometry));path.dataset.iso=iso;path.setAttribute("fill","#32475e");path.classList.add("country");
+path.addEventListener("mousemove",event=>{
+const partner=currentRows.find(r=>r.iso===iso),c=countryByIso.get(iso),selected=c?.id===state.country;
+const tip=$("tooltip");tip.replaceChildren();
+const title=document.createElement("strong");title.textContent=(c?.name||feature.properties.name)+(selected?" · Selezionato":"");
+const value=document.createElement("span");value.textContent=selected?"Paese di riferimento":partner?formatValue(partner):"Nessuno scambio rilevato";
+tip.append(title,value);
+const rect=$("mapWrap").getBoundingClientRect();
+tip.style.left=Math.max(5,Math.min(rect.width-230,event.clientX-rect.left+13))+"px";
+tip.style.top=Math.max(5,Math.min(rect.height-70,event.clientY-rect.top+13))+"px";
+tip.style.display="block";
+});
+path.addEventListener("mouseleave",()=>{$("tooltip").style.display="none"});
+path.addEventListener("click",()=>{if(drag?.moved)return;const c=countryByIso.get(iso);if(c){state.country=c.id;$("country").value=String(c.id);reload()}});
+$("mapPaths").appendChild(path);paths.push(path);
+}
+}
+function fillFilters(){
+const all=[...catalog.countries].sort((a,b)=>a.name.localeCompare(b.name,"it"));
+countryById=new Map(catalog.countries.map(c=>[c.id,c]));
+for(const c of all){opt($("country"),c.id,c.name);if(c.iso&&!countryByIso.has(c.iso))countryByIso.set(c.iso,c)}
+$("country").value=String(state.country);
+for(const s of catalog.sectors)opt($("sector"),s,s);
+fillChapters();fillGroups();
+}
+function fillChapters(){
+const el=$("hs2"),old=state.hs2;el.replaceChildren();opt(el,"","Tutte le categorie");
+for(const c of catalog.chapters.filter(c=>!state.sector||c.settore_it===state.sector))opt(el,c.hs2,c.hs2+" · "+c.settore_it);
+state.hs2=[...el.options].some(o=>o.value===old)?old:"";el.value=state.hs2;
+fillGroups();
+}
+function fillGroups(){
+const el=$("hs4"),old=state.hs4;el.replaceChildren();opt(el,"","Tutte le famiglie");
+const groups=new Map();
+for(const p of catalog.products){if(state.sector&&p.sector!==state.sector)continue;if(state.hs2&&p.hs2!==state.hs2)continue;if(!groups.has(p.hs4))groups.set(p.hs4,p.name.split(":")[0].slice(0,46))}
+for(const [k,v] of [...groups].sort((a,b)=>a[0].localeCompare(b[0])))opt(el,k,k+" · "+v);
+state.hs4=groups.has(old)?old:"";el.value=state.hs4;
+}
+function clearProduct(withReload=true){state.hs6="";$("productSearch").value="";$("suggestions").replaceChildren();$("productSelected").hidden=true;if(withReload)reload()}
+function searchProducts(){
+const box=$("suggestions"),q=$("productSearch").value.trim().toLowerCase();box.replaceChildren();if(!q||state.hs6)return;
+const found=catalog.products.filter(p=>(p.hs6.includes(q)||p.name.toLowerCase().includes(q))&&(!state.sector||p.sector===state.sector)&&(!state.hs2||p.hs2===state.hs2)&&(!state.hs4||p.hs4===state.hs4)).slice(0,12);
+for(const p of found){const btn=document.createElement("button");btn.type="button";btn.className="suggest";const b=document.createElement("b");b.textContent=p.hs6;btn.append(b,document.createTextNode(p.name));
+btn.onclick=()=>{state.hs6=p.hs6;state.sector=p.sector;state.hs2=p.hs2;state.hs4=p.hs4;$("sector").value=state.sector;fillChapters();$("hs2").value=state.hs2;fillGroups();$("hs4").value=state.hs4;$("productSearch").value=p.hs6+" — "+p.name;$("productSelected").hidden=false;$("selectedLabel").textContent=p.hs6+" · Prodotto selezionato";box.replaceChildren();reload()};box.appendChild(btn)}
+}
+function setupControls(){
+$("country").onchange=e=>{state.country=Number(e.target.value);reload()};
+$("year").onchange=e=>{state.year=Number(e.target.value);reload()};
+$("direction").onchange=e=>{state.direction=e.target.value;reload()};
+$("measure").onchange=e=>{state.measure=e.target.value;render()};
+$("sector").onchange=e=>{state.sector=e.target.value;state.hs2="";state.hs4="";clearProduct(false);fillChapters();reload()};
+$("hs2").onchange=e=>{state.hs2=e.target.value;state.hs4="";clearProduct(false);fillGroups();reload()};
+$("hs4").onchange=e=>{state.hs4=e.target.value;clearProduct(false);reload()};
+$("productSearch").oninput=()=>{if(state.hs6){state.hs6="";$("productSelected").hidden=true}searchProducts()};
+$("productSearch").onkeydown=e=>{if(e.key==="Enter"){const b=$("suggestions").querySelector("button");if(b){e.preventDefault();b.click()}}else if(e.key==="Escape")$("suggestions").replaceChildren()};
+$("clearProduct").onclick=()=>clearProduct();
+}
+async function getShard(){
+const key=[state.year,state.direction,state.country].join("/");
+if(cache?.key===key)return cache.text;
+const src="data/"+state.year+"/"+state.direction+"/"+state.country+".csv.gz";
+const response=await fetch(src,{cache:"force-cache"});
+if(response.status===404){cache={key,text:""};return ""}
+if(!response.ok)throw Error("Impossibile caricare "+src+" (HTTP "+response.status+")");
+if(!("DecompressionStream" in window))throw Error("Aggiorna il browser: serve il supporto GZIP");
+const encoded=(response.headers.get("Content-Encoding")||"").toLowerCase();
+const text=encoded.includes("gzip")?await response.text():await new Response(response.body.pipeThrough(new DecompressionStream("gzip"))).text();
+cache={key,text};return text;
+}
+function aggregate(text){
+const match=state.hs6||state.hs4||state.hs2;
+const sectorChapter=state.sector&&!match?new Set(catalog.chapters.filter(x=>x.settore_it===state.sector).map(x=>x.hs2)):null;
+const sums=new Map();let count=0,missingQ=0;
+for(let start=0;start<text.length;){
+let end=text.indexOf("\n",start);if(end<0)end=text.length;
+if(end>start){
+const a=text.indexOf(",",start),b=text.indexOf(",",a+1),c=text.indexOf(",",b+1);
+if(a>0&&b>a&&c>b){
+const code=text.slice(a+1,b);
+if((!match||code.startsWith(match))&&(!sectorChapter||sectorChapter.has(code.slice(0,2)))){
+const partner=Number(text.slice(start,a));
+const v=Number(text.slice(b+1,c));
+const strq=text.slice(c+1,end).trim();const validQ=strq!==""&&strq.toUpperCase()!=="NA";const q=validQ?Number(strq):null;
+let x=sums.get(partner);if(!x){x={id:partner,value:0,quantity:null,count:0,missing:0};sums.set(partner,x)}
+x.value+=v;x.count++;count++;
+if(q===null||!Number.isFinite(q)){x.missing++;missingQ++}else{x.quantity=(x.quantity||0)+q}
+}
+}
+}
+start=end+1;
+}
+const rows=[];let totalValue=0,totalQuantity=null;
+for(const x of sums.values()){const c=countryById.get(x.id);if(!c)continue;x.name=c.name;x.iso=c.iso;totalValue+=x.value;if(x.quantity!==null)totalQuantity=(totalQuantity||0)+x.quantity;rows.push(x)}
+return {rows,totalValue,totalQuantity,count,missingQ};
+}
+function recolor(){
+const selected=countryById.get(state.country)?.iso;
+const map=new Map(currentRows.map(r=>[r.iso,r]));
+const vals=currentRows.map(metricNum).filter(v=>v>0);
+const min=vals.length?Math.min(...vals):1,max=vals.length?Math.max(...vals):1;
+for(const p of paths){const iso=p.dataset.iso,v=metricNum(map.get(iso)||{value:0,quantity:null}),isSelected=iso===selected;
+let col="#32475e";
+if(v>0){const ratio=max>min?(Math.log(v)-Math.log(min))/(Math.log(max)-Math.log(min)):1;col=palette[Math.max(0,Math.min(4,Math.floor(ratio*5)))]}
+p.setAttribute("fill",isSelected?"#1970f0":col);p.classList.toggle("selected",isSelected)}
+}
+let lastData=null;
+function render(){
+if(!lastData)return;
+currentRows=lastData.rows;recolor();
+const c=countryById.get(state.country);
+const dir=state.direction==="import"?"Importazioni":"Esportazioni";
+const product=state.hs6?catalog.products.find(p=>p.hs6===state.hs6)?.name:state.hs4?"Famiglia HS4 "+state.hs4:state.hs2?"Categoria HS2 "+state.hs2:state.sector||"Tutti i prodotti";
+$("headline").textContent=dir+" · "+(c?.name||"");
+$("subtitle").textContent=state.year+" · "+product+" · "+fmtInt.format(lastData.count)+" flussi originali corrispondenti";
+$("mapTitle").textContent=state.direction==="import"?"Origine delle importazioni":"Destinazione delle esportazioni";
+$("totalValue").textContent=compactUSD(lastData.totalValue);
+$("totalQty").textContent=compactTon(lastData.totalQuantity);
+const sorted=[...currentRows].sort((a,b)=>metricNum(b)-metricNum(a));
+const positives=sorted.filter(x=>metricNum(x)>0);
+$("partnerCount").textContent=fmtInt.format(positives.length);
+$("recordsNote").textContent=fmtInt.format(lastData.count)+" osservazioni HS6";
+$("bestPartner").textContent=positives[0]?.name||"—";$("bestPartner").title=positives[0]?.name||"";
+$("bestValue").textContent=positives[0]?formatValue(positives[0]):"Nessun flusso rilevato";
+const el=$("ranking");el.replaceChildren();
+if(!positives.length){const n=document.createElement("p");n.className="note";n.textContent="Nessun flusso presente per questi filtri.";el.append(n)}
+const max=metricNum(positives[0]||{value:1,quantity:1})||1;
+positives.slice(0,15).forEach((x,i)=>{
+const row=document.createElement("div");row.className="rank";row.title="Analizza "+x.name;
+const n=document.createElement("span");n.className="num";n.textContent=i+1;
+const name=document.createElement("span");name.textContent=x.name;
+const bar=document.createElement("div");bar.className="bar";const fill=document.createElement("i");fill.style.width=Math.max(1,100*metricNum(x)/max)+"%";bar.append(fill);
+const amount=document.createElement("span");amount.className="amount";amount.textContent=formatValue(x);row.append(n,name,bar,amount);
+row.onclick=()=>{state.country=x.id;$("country").value=String(x.id);reload()};el.append(row);
+});
+$("explanation").textContent=(c?.name||"Il paese selezionato")+" è in blu. Gli altri paesi sono colorati in base "+(state.direction==="import"?"alle merci che esportano verso questo paese":"alle merci che importano da questo paese")+". Colori più intensi indicano "+(state.measure==="value"?"un maggior valore":"una maggiore quantità nota")+". Scala logaritmica tra i partner positivi; i paesi senza dati restano grigi.";
+$("rankNote").textContent=state.measure==="value"?"Per valore (USD)":"Per quantità (t)";
+}
+async function reload(){
+const token=++queryToken;notice("Caricamento dei dati del paese…");
+try{
+const text=await getShard();if(token!==queryToken)return;
+notice("Analisi dei flussi…");
+const result=aggregate(text);if(token!==queryToken)return;
+lastData=result;render();notice("Dati BACI completi");
+}catch(e){if(token!==queryToken)return;notice(e.message,true);console.error(e)}
+}
+async function init(){
+geo=JSON.parse(window.__BACI_PAYLOAD.geo.join(""));
+const response=await fetch("catalog.json");
+if(!response.ok)throw Error("Catalogo prodotto non trovato");
+catalog=await response.json();
+fillFilters();setupControls();createMap();setupMapGestures();
+try{const r=await fetch("manifest.json");if(r.ok){const m=await r.json();$("coverage").textContent=fmtInt.format(m.rows)+" flussi originali · "+m.countries+" paesi · "+fmtInt.format(m.products)+" prodotti HS6 · anni "+m.years.map(x=>x.year).join(", ")+". La selezione carica solo l'indice necessario; ogni flusso mantiene valore e quantità originali."}}catch(e){$("coverage").textContent="Fonte CEPII BACI V202601"}
+reload();
+}
+init().catch(e=>{notice("Errore di avvio: "+e.message,true);console.error(e)});
+})();
+</script>
+</body>
+</html>
