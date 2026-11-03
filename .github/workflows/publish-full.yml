@@ -1,0 +1,42 @@
+name: Pubblica BACI Atlas completo (HS6 2022-2024)
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/publish-full.yml
+      - scripts/build_full_atlas.py
+      - full.html
+      - payload/catalog-01.js
+      - payload/catalog-02.js
+      - payload/catalog-03.js
+      - payload/geo-01.js
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: baci-atlas-full-deployment
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Recupera il codice del sito
+        uses: actions/checkout@v4
+      - name: Configura GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Scarica BACI originale e genera indici completi
+        run: python3 scripts/build_full_atlas.py
+      - name: Carica sito compresso su GitHub Pages
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - name: Pubblica il sito
+        id: deployment
+        uses: actions/deploy-pages@v4
