@@ -1,0 +1,1 @@
+BACI Atlas: GitHub publishing connection verified. Initial publication uses a limited, real-data browser preview. Full HS6 data will follow in a separate deployment.
