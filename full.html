@@ -31,6 +31,20 @@ h1{margin:4px 0;font-size:28px;letter-spacing:-.7px}h2{font-size:14px;margin:0}p
 .rank .num{color:#7796af}.bar{height:9px;border-radius:5px;background:#25405c;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#efb783,#d45b39)}
 .rank .amount{text-align:right;color:#cbdfef;font-size:11px}.note{font-size:12px;color:#a7bed5;line-height:1.7}
 .pill{display:inline-block;font-size:10px;padding:4px 8px;border-radius:6px;background:#204267;color:#bedbfc}
+.product-panel{margin-top:13px}.product-controls{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:14px 0 10px}
+.product-controls .field{margin:0;flex:1;min-width:150px}.product-controls .field:first-child{max-width:230px}
+.product-summary{font-size:12px;color:#a9c6de;line-height:1.6;margin-bottom:10px}
+.product-head,.product-row{display:grid;grid-template-columns:45px minmax(0,1fr) minmax(95px,140px) 67px;align-items:center;gap:10px}
+.product-head{font-size:11px;color:#94acc3;padding:9px 9px;border-bottom:1px solid #35516b}
+.product-row{width:100%;text-align:left;border:0;border-bottom:1px solid #29405a;background:transparent;color:#e6effa;padding:10px 9px}
+.product-row:hover,.product-row:focus-visible{background:#1d3d5a}
+.product-rank{font-size:11px;color:#86a2bf}.product-name{display:block;font-size:12px;font-weight:650;line-height:1.4;overflow-wrap:anywhere}
+.product-code{display:block;font-size:11px;color:#8ba9c8;margin-top:3px}
+.product-number{text-align:right;font-size:12px;font-variant-numeric:tabular-nums}
+.product-share{text-align:right;font-size:11px;color:#9eb9d2;font-variant-numeric:tabular-nums}
+.product-more{display:block;margin:15px auto 3px;padding:9px 20px;border-radius:9px;background:#244e7c;border:1px solid #5382b6;color:#fff}
+.product-more[hidden]{display:none}.product-row .partial{display:block;font-size:10px;color:#e5ad8d;margin-top:3px}
+@media(max-width:750px){.product-head,.product-row{grid-template-columns:26px minmax(0,1fr) minmax(75px,90px) 43px;gap:6px}.product-head{font-size:10px}.product-number{font-size:11px}.product-share{font-size:10px}.product-controls .field:first-child{max-width:none}}
 footer{padding-top:19px;font-size:11px;color:#829bb6;line-height:1.6}
 .zoom{display:flex;gap:6px}.zoom button{border:1px solid #355271;background:#19314c;border-radius:7px;padding:5px 9px}
 @media(max-width:1050px){.layout{grid-template-columns:250px minmax(0,1fr)}.metric strong{font-size:18px}.bottom{grid-template-columns:1fr}}
@@ -71,6 +85,21 @@ footer{padding-top:19px;font-size:11px;color:#829bb6;line-height:1.6}
 </section>
 <div class="bottom"><section class="panel"><div class="panelhead"><h2 id="rankingTitle">Principali partner commerciali</h2><small id="rankNote">Ordine decrescente</small></div><div class="ranks" id="ranking"></div></section>
 <section class="panel"><h2>Come leggere la mappa</h2><p class="note" style="margin-top:14px" id="explanation">Seleziona un paese e un prodotto. La mappa evidenzia l'origine delle importazioni o la destinazione delle esportazioni.</p><div style="height:1px;background:#2b415c;margin:15px 0"></div><p class="note" id="coverage">Caricamento delle informazioni sul dataset…</p></section></div>
+<section class="panel product-panel" id="productPanel">
+<div class="panelhead"><div><h2>Classifica completa dei prodotti importati / esportati</h2>
+<small>Tutti i partner commerciali sommati · per il paese, l'anno e la direzione selezionati</small></div></div>
+<div class="product-controls">
+<div class="field"><label for="productRankLevel">Livello della classifica</label>
+<select id="productRankLevel"><option value="hs6" selected>Prodotti specifici HS6</option><option value="hs4">Famiglie prodotto HS4</option><option value="hs2">Categorie HS2</option></select></div>
+<div class="field"><label for="productRankSearch">Cerca prodotto o codice nella classifica</label>
+<input type="search" id="productRankSearch" placeholder="Cerca tra tutti i prodotti" autocomplete="off"></div>
+</div>
+<p class="product-summary" id="productSummary">Caricamento ranking prodotti…</p>
+<div class="product-head"><span>#</span><span>Prodotto / categoria</span><span style="text-align:right">Valore / quantità</span><span style="text-align:right">Quota</span></div>
+<div id="productRanking" aria-live="polite"></div>
+<button type="button" class="product-more" id="productMore" hidden>Mostra altri 50 prodotti</button>
+<p class="small" style="margin-top:11px">La classifica comprende <b>tutti i prodotti scambiati con tutti i partner</b>: non dipende dal prodotto o dalla categoria scelti per la mappa. Seleziona una riga per visualizzare quel prodotto sulla mappa. La quota è calcolata sul totale del livello scelto; le quantità mancanti non sono stimate.</p>
+</section>
 <footer>Fonte: CEPII BACI, HS22 V202601 · Gaulier &amp; Zignago (2010) · Licenza Etalab 2.0. Le osservazioni sono conservate alla granularità originale anno–esportatore–importatore–HS6. Il colore riguarda gli scambi del paese selezionato, non il totale mondiale del partner. I valori nominali non sono corretti per l'inflazione.</footer>
 </main>
 </div>
@@ -84,6 +113,7 @@ const fmtInt=new Intl.NumberFormat("it-IT",{maximumFractionDigits:0});
 const fmtShort=new Intl.NumberFormat("it-IT",{notation:"compact",maximumFractionDigits:2});
 let catalog,geo,countryById=new Map(),countryByIso=new Map(),paths=[],currentRows=[],cache=null,queryToken=0;
 let view={x:0,y:0,w:1000,h:500},drag=null;
+let rankLevel="hs6",rankSearch="",rankLimit=50;
 function notice(message,error=false){$("status").textContent=(error?"⚠ ":"● ")+message;$("status").classList.toggle("error",error)}
 function opt(el,value,label){const x=document.createElement("option");x.value=String(value);x.textContent=label;el.appendChild(x)}
 function compactUSD(thousand){return fmtShort.format(thousand*1000)+" USD"}
@@ -165,6 +195,9 @@ $("hs4").onchange=e=>{state.hs4=e.target.value;clearProduct(false);reload()};
 $("productSearch").oninput=()=>{if(state.hs6){state.hs6="";$("productSelected").hidden=true}searchProducts()};
 $("productSearch").onkeydown=e=>{if(e.key==="Enter"){const b=$("suggestions").querySelector("button");if(b){e.preventDefault();b.click()}}else if(e.key==="Escape")$("suggestions").replaceChildren()};
 $("clearProduct").onclick=()=>clearProduct();
+$("productRankLevel").onchange=e=>{rankLevel=e.target.value;rankLimit=50;renderProductRanking()};
+$("productRankSearch").oninput=e=>{rankSearch=e.target.value.trim().toLowerCase();rankLimit=50;renderProductRanking()};
+$("productMore").onclick=()=>{rankLimit+=50;renderProductRanking()};
 }
 async function getShard(){
 const key=[state.year,state.direction,state.country].join("/");
@@ -181,20 +214,29 @@ cache={key,text};return text;
 function aggregate(text){
 const match=state.hs6||state.hs4||state.hs2;
 const sectorChapter=state.sector&&!match?new Set(catalog.chapters.filter(x=>x.settore_it===state.sector).map(x=>x.hs2)):null;
-const sums=new Map();let count=0,missingQ=0;
+const sums=new Map(),products=new Map();let count=0,missingQ=0;
 for(let start=0;start<text.length;){
 let end=text.indexOf("\n",start);if(end<0)end=text.length;
 if(end>start){
 const a=text.indexOf(",",start),b=text.indexOf(",",a+1),c=text.indexOf(",",b+1);
-if(a>0&&b>a&&c>b){
+if(a>start&&b>a&&c>b){
 const code=text.slice(a+1,b);
+const v=Number(text.slice(b+1,c));
+const strq=text.slice(c+1,end).trim(),q=strq!==""&&strq.toUpperCase()!=="NA"?Number(strq):null;
+const knownQ=q!==null&&Number.isFinite(q);
+// Product classification always uses ALL partners and ALL categories.
+// It is intentionally calculated before map filters apply.
+let product=products.get(code);
+if(!product){product={code,value:0,quantity:null,count:0,missing:0};products.set(code,product)}
+product.value+=v;product.count++;
+if(knownQ)product.quantity=(product.quantity||0)+q;else product.missing++;
+// Existing map/ranking of partner countries respects the selected filters.
 if((!match||code.startsWith(match))&&(!sectorChapter||sectorChapter.has(code.slice(0,2)))){
 const partner=Number(text.slice(start,a));
-const v=Number(text.slice(b+1,c));
-const strq=text.slice(c+1,end).trim();const validQ=strq!==""&&strq.toUpperCase()!=="NA";const q=validQ?Number(strq):null;
-let x=sums.get(partner);if(!x){x={id:partner,value:0,quantity:null,count:0,missing:0};sums.set(partner,x)}
+let x=sums.get(partner);
+if(!x){x={id:partner,value:0,quantity:null,count:0,missing:0};sums.set(partner,x)}
 x.value+=v;x.count++;count++;
-if(q===null||!Number.isFinite(q)){x.missing++;missingQ++}else{x.quantity=(x.quantity||0)+q}
+if(knownQ)x.quantity=(x.quantity||0)+q;else{x.missing++;missingQ++}
 }
 }
 }
@@ -202,7 +244,81 @@ start=end+1;
 }
 const rows=[];let totalValue=0,totalQuantity=null;
 for(const x of sums.values()){const c=countryById.get(x.id);if(!c)continue;x.name=c.name;x.iso=c.iso;totalValue+=x.value;if(x.quantity!==null)totalQuantity=(totalQuantity||0)+x.quantity;rows.push(x)}
-return {rows,totalValue,totalQuantity,count,missingQ};
+return {rows,totalValue,totalQuantity,count,missingQ,products:[...products.values()]};
+}
+function selectRankedProduct(code){
+clearProduct(false);
+state.sector="";state.hs2=code.slice(0,2);state.hs4="";state.hs6="";
+if(rankLevel==="hs4")state.hs4=code;
+if(rankLevel==="hs6"){
+const p=catalog.products.find(x=>x.hs6===code);
+if(p){state.sector=p.sector;state.hs2=p.hs2;state.hs4=p.hs4;state.hs6=p.hs6}
+}
+$("sector").value=state.sector;
+fillChapters();$("hs2").value=state.hs2;
+fillGroups();$("hs4").value=state.hs4;
+if(state.hs6){
+const p=catalog.products.find(x=>x.hs6===state.hs6);
+$("productSearch").value=state.hs6+" — "+(p?.name||"");
+$("selectedLabel").textContent=state.hs6+" · Prodotto selezionato";
+$("productSelected").hidden=false;
+}
+reload();
+$("mapWrap").scrollIntoView({behavior:"smooth",block:"center"});
+}
+function renderProductRanking(){
+if(!lastData)return;
+const labels=new Map(catalog.products.map(p=>[p.hs6,p.name]));
+const groups=new Map();
+const n=rankLevel==="hs6"?6:rankLevel==="hs4"?4:2;
+for(const p of lastData.products){
+const code=p.code.slice(0,n);
+let x=groups.get(code);
+if(!x){x={code,value:0,quantity:null,count:0,missing:0};groups.set(code,x)}
+x.value+=p.value;x.count+=p.count;x.missing+=p.missing;
+if(p.quantity!==null)x.quantity=(x.quantity||0)+p.quantity;
+}
+const all=[...groups.values()].sort((a,b)=>metricNum(b)-metricNum(a)||a.code.localeCompare(b.code));
+const measureTotal=all.reduce((s,p)=>s+metricNum(p),0);
+const levelNames={hs2:"categorie HS2",hs4:"famiglie HS4",hs6:"prodotti HS6"};
+const direction=state.direction==="import"?"importati":"esportati";
+const country=countryById.get(state.country)?.name||"paese selezionato";
+$("productSummary").textContent=fmtInt.format(all.length)+" "+levelNames[rankLevel]+" "+direction+" da "+country+" nel "+state.year+" · tutti i paesi partner · "+(state.measure==="value"?"per valore USD":"per quantità nota");
+const heading=new Map();
+if(rankLevel==="hs2"){
+for(const c of catalog.chapters)heading.set(c.hs2,c.settore_it||"Categoria "+c.hs2);
+}else if(rankLevel==="hs4"){
+for(const p of catalog.products)if(!heading.has(p.hs4))heading.set(p.hs4,"Famiglia HS4 · "+p.sector);
+}
+const q=rankSearch;
+const matches=q?all.map((p,i)=>({p,rank:i+1})).filter(({p})=>{
+const label=rankLevel==="hs6"?labels.get(p.code)||"":heading.get(p.code)||"";
+return p.code.includes(q)||label.toLowerCase().includes(q)
+}):all.map((p,i)=>({p,rank:i+1}));
+const root=$("productRanking");root.replaceChildren();
+const fragment=document.createDocumentFragment();
+for(const {p,rank} of matches.slice(0,rankLimit)){
+const row=document.createElement("button");row.type="button";row.className="product-row";
+const order=document.createElement("span");order.className="product-rank";order.textContent=rank;
+const descr=document.createElement("div");const name=document.createElement("span");name.className="product-name";
+name.textContent=rankLevel==="hs6"?(labels.get(p.code)||"Prodotto senza descrizione"):(heading.get(p.code)||"Categoria "+p.code);
+const code=document.createElement("span");code.className="product-code";code.textContent=p.code+" · "+fmtInt.format(p.count)+" flussi";
+descr.append(name,code);
+const amount=document.createElement("span");amount.className="product-number";amount.textContent=formatValue(p);
+if(state.measure==="quantity"&&p.missing){
+const partial=document.createElement("span");partial.className="partial";
+partial.textContent=p.quantity===null?"Quantità n.d.":"Dati parziali";
+partial.title=fmtInt.format(p.missing)+" flussi senza quantità";
+amount.append(partial);
+}
+const share=document.createElement("span");share.className="product-share";
+share.textContent=measureTotal>0?(100*metricNum(p)/measureTotal).toLocaleString("it-IT",{maximumFractionDigits:1})+"%":"—";
+row.append(order,descr,amount,share);row.onclick=()=>selectRankedProduct(p.code);fragment.append(row);
+}
+root.append(fragment);
+$("productMore").hidden=matches.length<=rankLimit;
+$("productMore").textContent="Mostra altri 50 ("+fmtInt.format(Math.min(rankLimit,matches.length))+" di "+fmtInt.format(matches.length)+")";
+if(!matches.length){const p=document.createElement("p");p.className="note";p.style.padding="14px";p.textContent="Nessun prodotto trovato con questa ricerca.";root.append(p)}
 }
 function recolor(){
 const selected=countryById.get(state.country)?.iso;
@@ -245,6 +361,7 @@ row.onclick=()=>{state.country=x.id;$("country").value=String(x.id);reload()};el
 });
 $("explanation").textContent=(c?.name||"Il paese selezionato")+" è in blu. Gli altri paesi sono colorati in base "+(state.direction==="import"?"alle merci che esportano verso questo paese":"alle merci che importano da questo paese")+". Colori più intensi indicano "+(state.measure==="value"?"un maggior valore":"una maggiore quantità nota")+". Scala logaritmica tra i partner positivi; i paesi senza dati restano grigi.";
 $("rankNote").textContent=state.measure==="value"?"Per valore (USD)":"Per quantità (t)";
+renderProductRanking();
 }
 async function reload(){
 const token=++queryToken;notice("Caricamento dei dati del paese…");
